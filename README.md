@@ -7,21 +7,25 @@ The system handles product orders, inventory management, invoice generation (PDF
 
 ---
 
-## 🚀 What Does the Project Do?
+## End to end flow
 
-This project simulates a production-grade order system with the following flow:
+1. User places order → Order Service
+2. Order is stored in OrderDB
+3. Order event pushed to SQS
+4. Inventory Service consumes order:
+   - Updates InventoryDB
+   - Updates Redis
+   - Publishes status to order_status_topic
 
-1. **Order Placement**:  
-   A user places an order via the Order Service (Node.js).
+5. Order Service waits for status
 
-2. **Inventory Check**:  
-   Order Service sends a message to the Inventory Service (Python) via SQS.
+6. Order Service:
+   - Generates invoice
+   - Uploads to S3
 
-3. **If In Stock**:  
-   - The product quantity is decremented in PostgreSQL.  
-   - An invoice is generated as a PDF and stored in S3.  
-   - The customer receives a success notification (via SNS + Lambda).
+7. Order Service publishes order-finalized-topic
+8. Lambda receives FINALIZED_ORD, sends notification with invoice link
 
-4. **If Not In Stock**:  
-   - An `out-of-stock` event is emitted.  
-   - A fallback notification is triggered.
+## Component Diagram
+
+<img src="images/Component-diagram.png">
