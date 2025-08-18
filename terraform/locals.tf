@@ -8,8 +8,13 @@ locals {
     tags                    = { Name = "${var.project}-${detail.id}" }
   }]
 
-  subnet_ids = {
-    for index, value in module.subnets.subnet_ids: value.name => value.id
-  }
+  public_subnet_id = [
+    for subnet in module.subnets.subnet_ids : subnet.id
+    if strcontains((subnet.name), "public")
+  ][0]
+  private_subnet_ids = [
+    for subnet in module.subnets.subnet_ids : subnet.id
+    if strcontains((subnet.name), "private")
+  ]
 }
 
