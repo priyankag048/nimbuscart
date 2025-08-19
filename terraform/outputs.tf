@@ -17,3 +17,7 @@ output public_subnet_id {
 output "private_subnet_ids" {
   value = local.private_subnet_ids
 }
+
+output "db_endpoint" {
+  value = module.rds.db_endpoint
+}

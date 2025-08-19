@@ -34,3 +34,27 @@ module "ec2-jumpbox" {
   public_ip        = var.public_ip
   depends_on       = [module.vpc, module.subnets, module.route_table]
 }
+
+module "messaging" {
+  source     = "./modules/messaging"
+  sns_topic  = var.sns_topic
+  depends_on = [module.vpc, module.subnets, module.route_table]
+}
+
+module "eks" {
+  source             = "./modules/eks"
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = local.private_subnet_ids
+  cluster            = var.cluster
+  tags               = var.tags
+  depends_on         = [module.vpc, module.subnets, module.route_table]
+}
+
+module "rds" {
+  source             = "./modules/rds"
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = local.private_subnet_ids
+  eks_node_sg_id     = module.eks.node_sg_id
+  tags               = var.tags
+  depends_on         = [module.vpc, module.subnets, module.route_table, module.eks]
+}
