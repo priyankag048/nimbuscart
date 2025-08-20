@@ -1,4 +1,5 @@
 import { v4 } from 'uuid';
+import type {Buffer} from 'buffer';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 import { region, bucket, order_finalized_topic } from '../config.ts';
@@ -15,6 +16,7 @@ const uploadToS3 = async (pdfData: Buffer<ArrayBuffer>, key: string) => {
     Body: pdfData,
     ContentType: "application/pdf"
   }));
+  console.log("Successfully uploaded invoice to S3 bucket")
 }
 
 const publishEventToFinalizedOrderTopic = async (options: Record<string, string>) => {
@@ -26,7 +28,8 @@ const publishEventToFinalizedOrderTopic = async (options: Record<string, string>
   await sns.send(new PublishCommand({
     TopicArn: order_finalized_topic,
     Message: JSON.stringify(message)
-  }))
+  }));
+  console.log("Successfully published finalized order event");
 }
 
 export const uploadInvoiceAndNotify = async (orderId: string, customerName: string, pdfData: Buffer<ArrayBuffer>) => {

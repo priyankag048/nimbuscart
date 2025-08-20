@@ -1,7 +1,9 @@
+import type { Request, Response } from 'express';
 import PDFDocument from "pdfkit";
+import { Buffer } from 'buffer';
 import { generateOrderId, uploadInvoiceAndNotify } from './service.ts';
 
-export const createOrder = (req, res) => {
+export const createOrder = (req: Request, res: Response) => {
   const orderId = generateOrderId();
   const { customerName, items } = req.body;
 
