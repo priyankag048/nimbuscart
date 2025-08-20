@@ -41,20 +41,32 @@ module "messaging" {
   depends_on = [module.vpc, module.subnets, module.route_table]
 }
 
-module "eks" {
-  source             = "./modules/eks"
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = local.private_subnet_ids
-  cluster            = var.cluster
-  tags               = var.tags
-  depends_on         = [module.vpc, module.subnets, module.route_table]
+# module "eks" {
+#   source             = "./modules/eks"
+#   vpc_id             = module.vpc.vpc_id
+#   private_subnet_ids = local.private_subnet_ids
+#   cluster            = var.cluster
+#   tags               = var.tags
+#   depends_on         = [module.vpc, module.subnets, module.route_table]
+# }
+
+# module "rds" {
+#   source             = "./modules/rds"
+#   vpc_id             = module.vpc.vpc_id
+#   private_subnet_ids = local.private_subnet_ids
+#   eks_node_sg_id     = module.eks.node_sg_id
+#   tags               = var.tags
+#   depends_on         = [module.vpc, module.subnets, module.route_table]
+# }
+
+module "s3" {
+  source  = "./modules/s3"
+  project = var.project
 }
 
-module "rds" {
-  source             = "./modules/rds"
-  vpc_id             = module.vpc.vpc_id
-  private_subnet_ids = local.private_subnet_ids
-  eks_node_sg_id     = module.eks.node_sg_id
-  tags               = var.tags
-  depends_on         = [module.vpc, module.subnets, module.route_table, module.eks]
+module "lambda" {
+  source                   = "./modules/lambda"
+  project                  = var.project
+  bucket_name              = module.s3.bucket_name
+  order_response_topic_arn = local.topic_list["nimbus-order-response"]
 }

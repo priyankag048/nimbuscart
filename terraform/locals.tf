@@ -16,5 +16,7 @@ locals {
     for subnet in module.subnets.subnet_ids : subnet.id
     if strcontains((subnet.name), "private")
   ]
+
+  topic_list = {for topic in module.messaging.sns_topic : topic.name => topic.arn}
 }
 
