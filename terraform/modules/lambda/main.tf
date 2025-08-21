@@ -59,3 +59,24 @@ resource "aws_ecr_repository" "lambda_repo" {
     Name = "${var.project}-lambda"
   }
 }
+
+resource "aws_lambda_function" "order_finalized_notification" {
+  package_type  = "Image"
+  function_name = "nimbus-order-finalized-notification"
+  image_uri     = "115785432369.dkr.ecr.us-west-1.amazonaws.com/nimbus-lambda@sha256:2e2ee26646312e811f0c92225d4c6a602c4e374f7b5d6193590b747f5db13d57"
+  role          = aws_iam_role.lambda_exec_role.arn
+}
+
+resource "aws_sns_topic_subscription" "lambda_subscription" {
+  topic_arn = var.order_finalized_topic_arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.order_finalized_notification.arn
+}
+
+resource "aws_lambda_permission" "allow_sns" {
+  statement_id  = "sns-invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.order_finalized_notification.function_name
+  principal     = "sns.amazonaws.com"
+  source_arn    = var.order_finalized_topic_arn
+}

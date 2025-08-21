@@ -65,8 +65,9 @@ module "s3" {
 }
 
 module "lambda" {
-  source                   = "./modules/lambda"
-  project                  = var.project
-  bucket_name              = module.s3.bucket_name
-  order_response_topic_arn = local.topic_list["nimbus-order-response"]
+  source                    = "./modules/lambda"
+  project                   = var.project
+  bucket_name               = module.s3.bucket_name
+  order_response_topic_arn  = local.topic_list["nimbus-order-response"]
+  order_finalized_topic_arn = local.topic_list["nimbus-order-finalized"]
 }

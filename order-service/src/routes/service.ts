@@ -2,7 +2,7 @@ import { v4 } from 'uuid';
 import type {Buffer} from 'buffer';
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
-import { region, bucket, order_finalized_topic } from '../config.ts';
+import { region, bucket, order_finalized_topic,finalized_order_event_type } from '../config.ts';
 
 export const generateOrderId = () => {
   return `ORD-${v4().split('-')[0]}`
@@ -22,7 +22,7 @@ const uploadToS3 = async (pdfData: Buffer<ArrayBuffer>, key: string) => {
 const publishEventToFinalizedOrderTopic = async (options: Record<string, string>) => {
   const sns = new SNSClient({ region })
   const message = {
-    eventType: "FINALIZED_ORD",
+    eventType: finalized_order_event_type,
     ...options
   }
   await sns.send(new PublishCommand({

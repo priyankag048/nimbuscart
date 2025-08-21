@@ -9,3 +9,6 @@ variable "bucket_name" {
 variable "order_response_topic_arn" {
   type = string
 }
+variable "order_finalized_topic_arn" {
+  type = string
+}
